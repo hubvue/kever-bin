@@ -2,17 +2,28 @@ import { createApplication } from 'sunnier'
 import { promisify } from 'util'
 import { join } from 'path'
 import * as fs from 'fs'
+import * as Koa from 'koa'
 const readDirPromise = promisify(fs.readdir)
 
-const rootPath = process.cwd()
+const rootPath: string = process.cwd()
+
+interface LoadPathInterface {
+  controller: string
+  service: string
+}
+interface OptionInterface {
+  port: number
+  plugins?: Array<Koa.Middleware>
+  loadPath?: LoadPathInterface
+}
 
 /**
  *
  * @param mode
-
+ * @returns {}
  */
-
-const getOptions = () => require(join(rootPath, './sunnier.config'))
+const getOptions = (): OptionInterface =>
+  require(join(rootPath, './sunnier.config'))
 
 /**
  *
@@ -23,14 +34,14 @@ const getFilePath = async (jsonPath): Promise<Set<string>> => {
   let filesPath: Set<string> = new Set()
 
   async function findFile(path) {
-    let files = await readDirPromise(path)
-    files.forEach(async item => {
-      let fpath = join(path, item)
-      let state = fs.statSync(fpath)
-      if (state.isDirectory()) {
+    let files: Array<string> = await readDirPromise(path)
+    files.forEach(async (item: string) => {
+      const fpath: string = join(path, item)
+      const stats: fs.Stats = fs.statSync(fpath)
+      if (stats.isDirectory()) {
         await findFile(fpath)
       }
-      if (state.isFile()) {
+      if (stats.isFile()) {
         filesPath.add(fpath)
       }
     })
@@ -43,9 +54,9 @@ const getFilePath = async (jsonPath): Promise<Set<string>> => {
  *
  * @param options
  */
-const startSunnier = options => {
+const startSunnier = (options: OptionInterface) => {
   return new Promise((resolve, reject) => {
-    const app = createApplication(options)
+    const app: Koa = createApplication(options)
     app.on('error', err => {
       reject(err)
     })
@@ -56,7 +67,7 @@ const startSunnier = options => {
 }
 
 const Start = async () => {
-  const options = getOptions()
+  const options: OptionInterface = getOptions()
   const { controller, service } = options.loadPath
   if (controller) {
     let controllerFilesPath: Set<string> = await getFilePath(
@@ -78,4 +89,4 @@ const Start = async () => {
   console.log(`server is running ${options.port}`)
 }
 
-Start()
+export default Start

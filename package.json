@@ -1,12 +1,15 @@
 {
   "name": "sunnier-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "cli for sunnier",
   "main": "./bin/cli.js",
   "bin": "./bin/cli.js",
   "types": "./dts/index.d.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
+    "format": "eslint --fix . --ext .js,.ts",
+    "test": "echo 1"
   },
   "repository": {
     "type": "git",
@@ -26,14 +29,47 @@
     "sunnier": "^0.3.0"
   },
   "dependencies": {
+    "@types/koa": "^2.11.0",
+    "koa": "^2.11.0",
     "sunnier": "^0.3.0"
   },
   "devDependencies": {
-    "conventional-changelog-cli": "^2.0.28",
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "@types/node": "^12.12.17",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
+    "conventional-changelog-cli": "^2.0.31",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-prettier": "^3.1.2",
     "husky": "^3.1.0",
     "lint-staged": "^9.5.0",
+    "mocha": "^6.2.2",
     "prettier": "^1.19.1",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged ",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "{src, test}/**/*.ts": [
+      "npm run format",
+      "prettier --write",
+      "git add"
+    ],
+    "{lib}/**/*.js": [
+      "npm run format",
+      "git add"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   }
 }

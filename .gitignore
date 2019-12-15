@@ -105,5 +105,5 @@ dist
 
 
 package-lock.json
-lib/
 dts/
+lib/
