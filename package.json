@@ -1,11 +1,12 @@
 {
   "name": "sunnier-cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "cli for sunnier",
   "main": "./bin/cli.js",
   "bin": "./bin/cli.js",
+  "types": "./dts/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,12 @@
     "url": "https://github.com/hubvue/sunnier-cli/issues"
   },
   "homepage": "https://github.com/hubvue/sunnier-cli#readme",
-  "dependencies": {},
+  "peerDependencies": {
+    "sunnier": "^0.3.0"
+  },
+  "dependencies": {
+    "sunnier": "^0.3.0"
+  },
   "devDependencies": {
     "conventional-changelog-cli": "^2.0.28",
     "husky": "^3.1.0",
