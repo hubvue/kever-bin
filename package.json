@@ -1,0 +1,36 @@
+{
+  "name": "sunnier-cli",
+  "version": "0.0.1",
+  "description": "cli for sunnier",
+  "main": "./bin/dev.js",
+  "bin": {
+    "dev": "./bin/dev.js",
+    "prod": "./bin/prod.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hubvue/sunnier-cli.git"
+  },
+  "keywords": [
+    "cli",
+    "sunnier"
+  ],
+  "author": "kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hubvue/sunnier-cli/issues"
+  },
+  "homepage": "https://github.com/hubvue/sunnier-cli#readme",
+  "dependencies": {
+    "sunnier": "^0.3.0"
+  },
+  "devDependencies": {
+    "conventional-changelog-cli": "^2.0.28",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1"
+  }
+}
