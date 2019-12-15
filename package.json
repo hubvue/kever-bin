@@ -1,6 +1,6 @@
 {
   "name": "sunnier-cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "cli for sunnier",
   "main": "./bin/cli.js",
   "bin": "./bin/cli.js",
