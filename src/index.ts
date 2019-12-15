@@ -89,4 +89,4 @@ const Start = async () => {
   console.log(`server is running ${options.port}`)
 }
 
-export default Start
+Start()
