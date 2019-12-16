@@ -34,6 +34,10 @@ const getFilePath = async (jsonPath): Promise<Set<string>> => {
   let filesPath: Set<string> = new Set()
 
   async function findFile(path) {
+    if (!fs.existsSync(path)) {
+      console.log(`[sunnier|error]: ${path}不是一个目录或文件`)
+      return
+    }
     let files: Array<string> = await readDirPromise(path)
     files.forEach(async (item: string) => {
       const fpath: string = join(path, item)
