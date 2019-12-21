@@ -1,2 +1,2 @@
-# sunnier-cli
-sunnier cli
+# sunnier-bin
+sunnier-bin
