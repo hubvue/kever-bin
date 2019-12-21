@@ -11,7 +11,6 @@ interface ConfigContext {
   port: number
   host: string
   plugins?: Array<Koa.Middleware>
-  loadPath?: Array<string>
 }
 
 interface ArgvOptions {
@@ -87,13 +86,10 @@ export default class Command {
   async startCommand() {
     let config: ConfigContext = this.initConfig()
     config.port = config.port || 9000
-    config.loadPath = config.loadPath || []
-    if (config.loadPath.length === 0) {
-      config.loadPath.push(join(this.baseDir, './src'))
-    }
+    const loadPath = join(this.options.rootDir, './app')
     Object.assign(this.config, config)
     // get files path
-    const filesPath: Set<string> = await this.getFilesPath(config.loadPath)
+    const filesPath: Set<string> = await this.getFilesPath(loadPath)
     // load ts/js file
     Logger.info('[sunnier|info]: load file...')
     await this.loadFile(filesPath)
@@ -121,7 +117,7 @@ export default class Command {
    *
    * @param dirs
    */
-  async getFilesPath(dirs: Array<string>) {
+  async getFilesPath(loadFileDir: string) {
     let filesPath: Set<string> = new Set()
 
     async function findFile(path) {
@@ -141,9 +137,7 @@ export default class Command {
         }
       }
     }
-    for (let dir of dirs) {
-      await findFile(dir)
-    }
+    await findFile(loadFileDir)
     return filesPath
   }
 }
