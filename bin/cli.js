@@ -1,3 +1,5 @@
 #!/usr/bin/env node
 
-require('../lib/index')
+const Command = require('../lib/command')
+
+new Command.default().startCommand()

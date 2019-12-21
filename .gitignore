@@ -107,3 +107,5 @@ dist
 package-lock.json
 dts/
 lib/
+
+example/
