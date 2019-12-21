@@ -1,6 +1,6 @@
 {
   "name": "sunnier-bin",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "sunnier-bin",
   "main": "./bin/cli.js",
   "bin": {
