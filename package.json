@@ -1,6 +1,6 @@
 {
   "name": "sunnier-bin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "sunnier-bin",
   "main": "./bin/cli.js",
   "bin": {
@@ -31,12 +31,12 @@
     "sunnier": "^0.3.0"
   },
   "dependencies": {
-    "@types/koa": "^2.11.0",
-    "koa": "^2.11.0",
-    "sunnier": "^0.3.0",
     "yargs-parser": "^16.1.0"
   },
   "devDependencies": {
+    "@types/koa": "^2.11.0",
+    "koa": "^2.11.0",
+    "sunnier": "^0.3.0",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@types/node": "^12.12.17",
