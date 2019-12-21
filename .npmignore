@@ -6,3 +6,4 @@ package-lock.json
 .eslintignore
 .prettierrc
 .tracis.yml
+.tsconfig.json
