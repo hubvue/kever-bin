@@ -1,4 +1,4 @@
-import { createApplication } from 'sunnier'
+import { createApplication } from 'kever'
 import { promisify } from 'util'
 import { join } from 'path'
 import * as fs from 'fs'
@@ -68,7 +68,7 @@ export default class Command {
   /**
    *
    */
-  initSunnier(): Promise<void> {
+  initKever(): Promise<void> {
     return new Promise((resolve, reject) => {
       let config: ConfigContext = this.config
       const app: Koa = createApplication(config)
@@ -91,17 +91,17 @@ export default class Command {
     // get files path
     const filesPath: Set<string> = await this.getFilesPath(loadPath)
     // load ts/js file
-    Logger.info('[sunnier|info]: load file...')
+    Logger.info('[kever|info]: load file...')
     await this.loadFile(filesPath)
-    Logger.info('[sunnier|info]: load file done')
-    this.initSunnier()
+    Logger.info('[kever|info]: load file done')
+    this.initKever()
       .then(() => {
         Logger.info(
-          `[sunnier|info]: service started. address: http://${this.config.host}:${this.config.port}`
+          `[kever|info]: service started. address: http://${this.config.host}:${this.config.port}`
         )
       })
       .catch(err => {
-        Logger.error(`[sunnier|error]: service startup failed. reason: ${err} `)
+        Logger.error(`[kever|error]: service startup failed. reason: ${err} `)
       })
   }
   /**
@@ -122,7 +122,7 @@ export default class Command {
 
     async function findFile(path) {
       if (!fs.existsSync(path)) {
-        Logger.error(`[sunnier|error]: ${path}is not a file or directory`)
+        Logger.error(`[kever|error]: ${path}is not a file or directory`)
         return
       }
       let files: Array<string> = await readDirPromise(path)

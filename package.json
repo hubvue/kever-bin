@@ -1,10 +1,10 @@
 {
-  "name": "sunnier-bin",
-  "version": "0.0.5",
-  "description": "sunnier-bin",
+  "name": "kever-bin",
+  "version": "0.0.1",
+  "description": "kever-bin",
   "main": "./bin/cli.js",
   "bin": {
-    "sunnier-bin": "./bin/cli.js"
+    "kever-bin": "./bin/cli.js"
   },
   "types": "./dts/index.d.ts",
   "scripts": {
@@ -15,20 +15,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hubvue/sunnier-bin.git"
+    "url": "git+https://github.com/hubvue/kever-bin.git"
   },
   "keywords": [
     "bin",
-    "sunnier-bin"
+    "kever-bin"
   ],
   "author": "kim",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hubvue/sunnier-bin/issues"
+    "url": "https://github.com/hubvue/kever-bin/issues"
   },
-  "homepage": "https://github.com/hubvue/sunnier-bin#readme",
+  "homepage": "https://github.com/hubvue/kever-bin#readme",
   "peerDependencies": {
-    "sunnier": "^0.3.0"
+    "kever": "^0.3.0"
   },
   "dependencies": {
     "ts-node": "^8.5.4",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/koa": "^2.11.0",
     "koa": "^2.11.0",
-    "sunnier": "^0.3.0",
+    "kever": "^0.3.0",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@types/node": "^12.12.17",
