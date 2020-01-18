@@ -2,4 +2,4 @@
 
 const { Command } = require('../lib/command')
 
-new Command.startCommand()
+new Command().startCommand()
