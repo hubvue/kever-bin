@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/koa": "^2.11.0",
     "koa": "^2.11.0",
-    "kever": "^0.3.0",
+    "kever": "^0.3.7",
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-conventional": "^8.2.0",
     "@types/node": "^12.12.17",
