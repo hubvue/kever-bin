@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-const Command = require('../lib/command')
+const { Command } = require('../lib/command')
 
-new Command.default().startCommand()
+new Command.startCommand()

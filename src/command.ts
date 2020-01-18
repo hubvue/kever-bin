@@ -20,7 +20,7 @@ interface ArgvOptions {
 }
 type genConfig = () => ConfigContext
 
-export default class Command {
+export class Command {
   private baseDir: string
   private options: ArgvOptions
   private config: ConfigContext = {
