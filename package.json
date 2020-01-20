@@ -1,6 +1,6 @@
 {
   "name": "kever-bin",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "kever-bin",
   "main": "./bin/cli.js",
   "bin": {

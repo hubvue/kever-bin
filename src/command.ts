@@ -1,11 +1,9 @@
-import { createApplication } from 'kever'
-import { promisify } from 'util'
-import { join } from 'path'
-import * as fs from 'fs'
 import * as Koa from 'koa'
 import * as parseArgv from 'yargs-parser'
 import * as assets from 'assert'
-const readDirPromise = promisify(fs.readdir)
+import { createApplication } from 'kever'
+import { loadFile, getFilesPath } from './util'
+import { join } from 'path'
 const Logger = console
 interface ConfigContext {
   port: number
@@ -13,11 +11,7 @@ interface ConfigContext {
   plugins?: Array<Koa.Middleware>
 }
 
-interface ArgvOptions {
-  rootDir: string
-  lanType: string
-  configFilePath: string
-}
+type ArgvOptions = Record<'rootDir' | 'lanType' | 'configFilePath', string>
 type genConfig = () => ConfigContext
 
 export class Command {
@@ -32,20 +26,20 @@ export class Command {
    */
   constructor() {
     this.baseDir = process.cwd()
-    const options: any = parseArgv(process.argv.slice(2))
+    const options = parseArgv(process.argv.slice(2))
     this.initOptions(options)
   }
   /**
    *
    * @param options
    */
-  initOptions(options: any) {
-    const rootDir: string = options.dir
+  initOptions(options) {
+    const rootDir = options.dir
       ? join(this.baseDir, options.dir)
       : join(this.baseDir, './')
-    const lanType: string =
+    const lanType =
       options.ts || process.env.NODE_ENV === 'development' ? 'ts' : 'js'
-    const configFilePath: string = join(rootDir, `./config/index.${lanType}`)
+    const configFilePath = join(rootDir, `./config/index.${lanType}`)
     // require ts-node
     if (lanType === 'ts') {
       require('ts-node').register()
@@ -61,17 +55,17 @@ export class Command {
    */
   initConfig(): ConfigContext {
     const genConfig: genConfig = require(this.options.configFilePath).default
-    let config: ConfigContext = typeof genConfig === 'function' && genConfig()
+    let config = typeof genConfig === 'function' && genConfig()
     assets(config, 'config return value must is ConfigContext type value')
     return config
   }
   /**
    *
    */
-  initKever(): Promise<void> {
+  async initApplication() {
     return new Promise((resolve, reject) => {
-      let config: ConfigContext = this.config
-      const app: Koa = createApplication(config)
+      let config = this.config
+      const app = createApplication(config)
       app.on('error', err => {
         reject(err)
       })
@@ -81,63 +75,40 @@ export class Command {
     })
   }
   /**
-   *
+   * @description 启动方法
    */
   async startCommand() {
-    let config: ConfigContext = this.initConfig()
+    let config = this.initConfig()
     config.port = config.port || 9000
-    const loadPath = join(this.options.rootDir, './app')
+    // 获取app目录路径
+    const appPath = join(this.options.rootDir, './app')
+    // 获取middleare路径
+    const middlePath = join(this.options.rootDir, './middleware')
+    // 合并config
     Object.assign(this.config, config)
     // get files path
-    const filesPath: Set<string> = await this.getFilesPath(loadPath)
+    const [appFilesPath, middleFilesPath] = await Promise.all([
+      getFilesPath(appPath),
+      getFilesPath(middlePath)
+    ])
     // load ts/js file
     Logger.info('[kever|info]: load file...')
-    await this.loadFile(filesPath)
+    await Promise.all([loadFile(appFilesPath), loadFile(middleFilesPath)])
     Logger.info('[kever|info]: load file done')
-    this.initKever()
+    // 初始化Application启动
+    this.initApplication()
       .then(() => {
         Logger.info(
           `[kever|info]: service started. address: http://${this.config.host}:${this.config.port}`
         )
+        this.watchApplication()
       })
       .catch(err => {
         Logger.error(`[kever|error]: service startup failed. reason: ${err} `)
       })
   }
   /**
-   *
-   * @param filesPath
+   * @description Application development watch mode
    */
-  async loadFile(filesPath: Set<string>) {
-    for (let filePath of filesPath) {
-      await require(filePath)
-    }
-  }
-  /**
-   *
-   * @param dirs
-   */
-  async getFilesPath(loadFileDir: string) {
-    let filesPath: Set<string> = new Set()
-
-    async function findFile(path) {
-      if (!fs.existsSync(path)) {
-        Logger.error(`[kever|error]: ${path}is not a file or directory`)
-        return
-      }
-      let files: Array<string> = await readDirPromise(path)
-      for (let item of files) {
-        const fpath: string = join(path, item)
-        const stats: fs.Stats = fs.statSync(fpath)
-        if (stats.isDirectory()) {
-          await findFile(fpath)
-        }
-        if (stats.isFile()) {
-          filesPath.add(fpath)
-        }
-      }
-    }
-    await findFile(loadFileDir)
-    return filesPath
-  }
+  watchApplication() {}
 }
