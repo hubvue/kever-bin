@@ -8,10 +8,13 @@ const Logger = console
  * @description require .ts | .js file
  * @param filesPath
  */
-export const loadFile = async (filesPath: Set<string>) => {
+export const loadFiles = async (filesPath: Set<string>) => {
   for (let filePath of filesPath) {
-    await require(filePath)
+    await loadFile(filePath)
   }
+}
+export const loadFile = async (filePath: string) => {
+  await require(filePath)
 }
 
 /**
@@ -42,4 +45,16 @@ export const getFilesPath = async (
   }
   await findFile(loadFileDir)
   return filesPath
+}
+
+export const debounce = (fn: Function, time: number): Function => {
+  let timer = null
+  return (...args) => {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      fn.apply(null, args)
+    }, time)
+  }
 }

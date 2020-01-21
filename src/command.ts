@@ -2,8 +2,9 @@ import * as Koa from 'koa'
 import * as parseArgv from 'yargs-parser'
 import * as assets from 'assert'
 import { createApplication } from 'kever'
-import { loadFile, getFilesPath } from './util'
+import { loadFiles, loadFile, getFilesPath, debounce } from './util'
 import { join } from 'path'
+import * as chokidar from 'chokidar'
 const Logger = console
 interface ConfigContext {
   port: number
@@ -17,6 +18,7 @@ type genConfig = () => ConfigContext
 export class Command {
   private baseDir: string
   private options: ArgvOptions
+  private watcher
   private config: ConfigContext = {
     host: '127.0.0.1',
     port: 9000
@@ -44,6 +46,10 @@ export class Command {
     if (lanType === 'ts') {
       require('ts-node').register()
     }
+    // 初始化watcher
+    if (options.watch) {
+      this.initWatcher()
+    }
     this.options = {
       configFilePath,
       rootDir,
@@ -60,7 +66,7 @@ export class Command {
     return config
   }
   /**
-   *
+   * @description 调用 createApplication启动服务
    */
   async initApplication() {
     return new Promise((resolve, reject) => {
@@ -93,7 +99,7 @@ export class Command {
     ])
     // load ts/js file
     Logger.info('[kever|info]: load file...')
-    await Promise.all([loadFile(appFilesPath), loadFile(middleFilesPath)])
+    await Promise.all([loadFiles(appFilesPath), loadFiles(middleFilesPath)])
     Logger.info('[kever|info]: load file done')
     // 初始化Application启动
     this.initApplication()
@@ -101,14 +107,54 @@ export class Command {
         Logger.info(
           `[kever|info]: service started. address: http://${this.config.host}:${this.config.port}`
         )
-        this.watchApplication()
+        // 如果实例化watcher就开启监听
+        this.watcher && this.watchApplication()
       })
       .catch(err => {
         Logger.error(`[kever|error]: service startup failed. reason: ${err} `)
       })
   }
   /**
+   * @description 实例化一个watch
+   */
+  initWatcher() {
+    // 初始化 watcher
+    const watchAppPath = join(this.baseDir, './src/app')
+    const watchMiddlePath = join(this.baseDir, './src/middleware')
+    this.watcher = chokidar.watch([watchAppPath, watchMiddlePath], {
+      ignored: /(^|[\/\\])\../, // ignore dotfiles
+      persistent: true
+    })
+  }
+  /**
    * @description Application development watch mode
    */
-  watchApplication() {}
+  watchApplication() {
+    this.watcher.on('all', debounce(this.watchHandler, 500))
+  }
+  /**
+   * @description watch 监听事件处理函数
+   * @param event
+   * @param path
+   */
+  watchHandler(event, path) {
+    // 文件发生变化，首先查看是否有当前模块作为其它模块的子模块，如果有先在父级模块中将当前模块删除，然后重新加载
+    const targetFile = require.resolve(path)
+    const cacheModule = require.cache[targetFile]
+    const cacheModuleParent = cacheModule && cacheModule.parent
+    if (cacheModuleParent) {
+      cacheModuleParent.children.splice(
+        cacheModuleParent.children.indexOf(cacheModule),
+        1
+      )
+    }
+    // 删除文件避免内存泄露，将require.cache中的targetFile删除掉
+    if (event === 'unlink') {
+      require.cache[targetFile] = null
+      delete require.cache[targetFile]
+    } else {
+      loadFile(targetFile)
+    }
+    Logger.info('[kever|info]: files watch...')
+  }
 }
