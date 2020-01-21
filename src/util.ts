@@ -1,6 +1,7 @@
 import * as fs from 'fs'
+import * as vm from 'vm'
 import { promisify } from 'util'
-import { join } from 'path'
+import { join, resolve } from 'path'
 const readDirPromise = promisify(fs.readdir)
 
 const Logger = console

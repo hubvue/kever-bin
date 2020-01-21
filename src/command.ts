@@ -149,12 +149,8 @@ export class Command {
       )
     }
     // 删除文件避免内存泄露，将require.cache中的targetFile删除掉
-    if (event === 'unlink') {
-      require.cache[targetFile] = null
-      delete require.cache[targetFile]
-    } else {
-      loadFile(targetFile)
-    }
+    delete require.cache[targetFile]
+    loadFile(targetFile)
     Logger.info('[kever|info]: files watch...')
   }
 }
