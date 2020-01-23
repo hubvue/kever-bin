@@ -48,7 +48,7 @@ export const getFilesPath = async (
   return filesPath
 }
 
-export const debounce = (fn: Function, time: number): Function => {
+export const debounce = (fn: Function, time: number) => {
   let timer = null
   return (...args) => {
     if (timer) {
