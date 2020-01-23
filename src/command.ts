@@ -1,10 +1,10 @@
 import * as Koa from 'koa'
 import * as parseArgv from 'yargs-parser'
 import * as assets from 'assert'
-import { createApplication } from 'kever'
 import { loadFiles, loadFile, getFilesPath, debounce } from './util'
 import { join } from 'path'
 import * as chokidar from 'chokidar'
+import { fork, exec } from 'child_process'
 const Logger = console
 interface ConfigContext {
   port: number
@@ -19,6 +19,8 @@ export class Command {
   private baseDir: string
   private options: ArgvOptions
   private watcher
+  private work
+  private workPid
   private config: ConfigContext = {
     host: '127.0.0.1',
     port: 9000
@@ -30,6 +32,13 @@ export class Command {
     this.baseDir = process.cwd()
     const options = parseArgv(process.argv.slice(2))
     this.initOptions(options)
+    process.on('exit', () => {
+      if (this.workPid) {
+        exec(`kill -9 ${this.workPid}`, () => {
+          Logger.info('[kever|info]service stopped')
+        })
+      }
+    })
   }
   /**
    *
@@ -66,21 +75,6 @@ export class Command {
     return config
   }
   /**
-   * @description 调用 createApplication启动服务
-   */
-  async initApplication() {
-    return new Promise((resolve, reject) => {
-      let config = this.config
-      const app = createApplication(config)
-      app.on('error', err => {
-        reject(err)
-      })
-      app.listen(config.port, config.host, () => {
-        resolve()
-      })
-    })
-  }
-  /**
    * @description 启动方法
    */
   async startCommand() {
@@ -101,18 +95,22 @@ export class Command {
     Logger.info('[kever|info]: load file...')
     await Promise.all([loadFiles(appFilesPath), loadFiles(middleFilesPath)])
     Logger.info('[kever|info]: load file done')
-    // 初始化Application启动
-    this.initApplication()
-      .then(() => {
-        Logger.info(
-          `[kever|info]: service started. address: http://${this.config.host}:${this.config.port}`
+    // 开子进程启动服务
+    this.work = fork(join(__dirname, './work'), [], { stdio: 'inherit' })
+    this.workPid = this.work.pid
+    this.work.on('message', data => {
+      if (data && data.error) {
+        Logger.error(
+          `[kever|error]: service startup failed. reason: ${data.message} `
         )
-        // 如果实例化watcher就开启监听
+      } else {
+        Logger.info(
+          `[kever|info]: service started. address: http://${data.message.host}:${data.message.port}`
+        )
         this.watcher && this.watchApplication()
-      })
-      .catch(err => {
-        Logger.error(`[kever|error]: service startup failed. reason: ${err} `)
-      })
+      }
+    })
+    this.work.send(config)
   }
   /**
    * @description 实例化一个watch
@@ -130,7 +128,8 @@ export class Command {
    * @description Application development watch mode
    */
   watchApplication() {
-    this.watcher.on('all', debounce(this.watchHandler, 500))
+    this.watcher.on('all', debounce(this.watchHandler.bind(this), 500))
+    Logger.info('[kever|info]: files watch...')
   }
   /**
    * @description watch 监听事件处理函数
@@ -150,7 +149,11 @@ export class Command {
     }
     // 删除文件避免内存泄露，将require.cache中的targetFile删除掉
     delete require.cache[targetFile]
-    loadFile(targetFile)
-    Logger.info('[kever|info]: files watch...')
+    exec(`kill -9 ${this.workPid}`, err => {
+      if (err) {
+        Logger.error(`[kever|err] ${err}`)
+      }
+      this.startCommand()
+    })
   }
 }
