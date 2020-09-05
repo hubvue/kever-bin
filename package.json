@@ -33,7 +33,7 @@
   "dependencies": {
     "chokidar": "^3.3.1",
     "ts-node": "^8.5.4",
-    "yargs-parser": "^16.1.0"
+    "yargs-parser": "^19.0.4"
   },
   "devDependencies": {
     "@types/koa": "^2.11.0",
